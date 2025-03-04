@@ -7,18 +7,76 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+out/
+.build/
+
+# Local environment files
+.env
+.env.local
+.env.*.local
 
 # Editor directories and files
-.vscode/*
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# TypeScript
+*.tsbuildinfo
+
+# TailwindCSS
+tailwind.config.js
+postcss.config.js
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Miscellaneous
+*.log
+*.tmp
+*.cache
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Coverage directory used by testing tools like Jest
+coverage/
+
+# Output of 'npm pack'
+*.tgz
+
+# Compiled JavaScript files
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# IDE-specific files
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# Ignore Bolt-specific files (if applicable)
+.bolt/
