@@ -51,8 +51,11 @@ const OrderForm: React.FC<OrderFormProps> = ({
 
   // Calculate TTC when HT or TVA changes
   const updateTotalTTC = (ht: number, tva: number) => {
-    const totalTTC = ht + tva;
-    setForm(prev => ({ ...prev, totalHT: ht, tva, totalTTC }));
+    // Ensure we're working with valid numbers
+    const validHT = isNaN(ht) ? 0 : ht;
+    const validTVA = isNaN(tva) ? 0 : tva;
+    const totalTTC = validHT + validTVA;
+    setForm(prev => ({ ...prev, totalHT: validHT, tva: validTVA, totalTTC }));
   };
 
   return (
@@ -147,7 +150,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
           id="totalHT"
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
           placeholder="0.00" 
-          value={form.totalHT || 0} 
+          value={form.totalHT === 0 ? "0" : form.totalHT || ""} 
           onChange={(e) => updateTotalTTC(parseFloat(e.target.value), form.tva || 0)}
           step="0.01"
           min="0"
@@ -164,7 +167,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
           id="tva"
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
           placeholder="0.00" 
-          value={form.tva || 0} 
+          value={form.tva === 0 ? "0" : form.tva || ""} 
           onChange={(e) => updateTotalTTC(form.totalHT || 0, parseFloat(e.target.value))}
           step="0.01"
           min="0"
@@ -179,9 +182,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
         <input 
           type="number" 
           id="totalTTC"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50"
           placeholder="0.00" 
-          value={form.totalTTC || 0} 
+          value={form.totalTTC === 0 ? "0" : form.totalTTC || ""} 
           readOnly
           step="0.01"
         />

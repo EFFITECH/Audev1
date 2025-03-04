@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent } from 'react';
+import { FileUp } from 'lucide-react';
 
 type InvoiceUploadProps = {
   onUpload: (file: File) => void;
@@ -8,19 +9,41 @@ type InvoiceUploadProps = {
 const InvoiceUpload: React.FC<InvoiceUploadProps> = ({ onUpload, onCancel }) => {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string>('');
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      
-      if (selectedFile.type !== 'application/pdf') {
-        setError('Seuls les fichiers PDF sont autorisés');
-        setFile(null);
-        return;
-      }
-      
-      setFile(selectedFile);
-      setError('');
+      validateAndSetFile(e.target.files[0]);
+    }
+  };
+
+  const validateAndSetFile = (selectedFile: File) => {
+    if (selectedFile.type !== 'application/pdf') {
+      setError('Seuls les fichiers PDF sont autorisés');
+      setFile(null);
+      return;
+    }
+    
+    setFile(selectedFile);
+    setError('');
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      validateAndSetFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -35,24 +58,49 @@ const InvoiceUpload: React.FC<InvoiceUploadProps> = ({ onUpload, onCancel }) => 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="invoice-file" className="block text-sm font-medium text-gray-700">
-          Fichier de facture (PDF uniquement)
-        </label>
-        <input
-          type="file"
-          id="invoice-file"
-          accept="application/pdf"
-          onChange={handleFileChange}
-          className="mt-1 block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100"
-        />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`border-2 border-dashed rounded-lg p-6 text-center ${
+          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+        }`}
+      >
+        <FileUp className="mx-auto h-12 w-12 text-gray-400" />
+        <div className="mt-4 flex text-sm leading-6 text-gray-600">
+          <label
+            htmlFor="invoice-file"
+            className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
+          >
+            <span>Sélectionner un fichier</span>
+            <input
+              id="invoice-file"
+              name="invoice-file"
+              type="file"
+              accept="application/pdf"
+              className="sr-only"
+              onChange={handleFileChange}
+            />
+          </label>
+          <p className="pl-1">ou glisser-déposer</p>
+        </div>
+        <p className="text-xs leading-5 text-gray-600">PDF uniquement</p>
+        
+        {file && (
+          <div className="mt-4 p-2 bg-blue-50 rounded-md flex items-center justify-between">
+            <span className="text-sm text-blue-700 truncate max-w-xs">{file.name}</span>
+            <button 
+              type="button" 
+              onClick={() => setFile(null)}
+              className="text-red-500 hover:text-red-700 text-sm"
+            >
+              Supprimer
+            </button>
+          </div>
+        )}
       </div>
+      
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       
       <div className="flex justify-end space-x-2 pt-4">
         <button 
@@ -75,5 +123,7 @@ const InvoiceUpload: React.FC<InvoiceUploadProps> = ({ onUpload, onCancel }) => 
     </form>
   );
 };
+
+export default InvoiceUpload;
 
 export default InvoiceUpload;

@@ -168,8 +168,8 @@ export const importInvoicePDF = (file: File): Promise<{ success: boolean, pdfUrl
   const newInvoice: Partial<Invoice> = {
     invoiceNumber: `INV-${Date.now()}`,
     invoiceDate: new Date().toISOString().split('T')[0],
-    orderId: 0,
-    amount: 0,
+    orderId: 1, // Assigning to the first order by default
+    amount: 1200, // Default amount based on the first order
     paymentTerms: '30 jours',
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     paymentStatus: 'en attente',
