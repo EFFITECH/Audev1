@@ -1,10 +1,9 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+// Montage simple sans StrictMode pour éviter les doubles rendus qui pourraient causer des problèmes
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <App />
 );

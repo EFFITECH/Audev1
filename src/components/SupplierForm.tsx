@@ -1,107 +1,228 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Supplier } from '../types';
 
 type SupplierFormProps = {
-  onSubmit: (supplier: Partial<Supplier>) => void;
+  supplier?: Supplier;
+  onSubmit: (supplier: Supplier) => void;
   onCancel: () => void;
-  initialData?: Partial<Supplier>;
 };
 
-const SupplierForm: React.FC<SupplierFormProps> = ({ 
-  onSubmit, 
-  onCancel, 
-  initialData 
+export const SupplierForm: React.FC<SupplierFormProps> = ({
+  supplier,
+  onSubmit,
+  onCancel,
 }) => {
-  const [form, setForm] = useState<Partial<Supplier>>(
-    initialData || {
-      name: '',
-      contact: '',
-      bankInfo: '',
-      category: ''
-    }
-  );
+  const [formData, setFormData] = useState<Supplier>({
+    id: supplier?.id || 0,
+    name: supplier?.name || '',
+    contactName: supplier?.contactName || '',
+    email: supplier?.email || '',
+    phone: supplier?.phone || '',
+    address: supplier?.address || '',
+    city: supplier?.city || '',
+    postalCode: supplier?.postalCode || '',
+    country: supplier?.country || 'France',
+    notes: supplier?.notes || '',
+  });
 
-  const handleSubmit = (e: FormEvent) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when field is edited
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Le nom du fournisseur est requis';
+    }
+    
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Format d\'email invalide';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    
+    if (validate()) {
+      onSubmit(formData);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Nom
-        </label>
-        <input 
-          type="text" 
-          id="name"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-          placeholder="Nom du fournisseur" 
-          value={form.name || ''} 
-          onChange={(e) => setForm({...form, name: e.target.value})}
-          required 
-        />
+      <h2 className="text-xl font-semibold dark:text-dark-text mb-4">
+        {supplier ? 'Modifier le fournisseur' : 'Ajouter un fournisseur'}
+      </h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+            Nom du fournisseur *
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border ${
+              errors.name ? 'border-red-500 dark:border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
+        </div>
+        
+        <div>
+          <label htmlFor="contactName" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+            Nom du contact
+          </label>
+          <input
+            type="text"
+            id="contactName"
+            name="contactName"
+            value={formData.contactName}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border ${
+              errors.email ? 'border-red-500 dark:border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
+        </div>
+        
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+            Téléphone
+          </label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border"
+          />
+        </div>
       </div>
       
       <div>
-        <label htmlFor="contact" className="block text-sm font-medium text-gray-700">
-          Contact
+        <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+          Adresse
         </label>
-        <input 
-          type="text" 
-          id="contact"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-          placeholder="Email ou téléphone" 
-          value={form.contact || ''} 
-          onChange={(e) => setForm({...form, contact: e.target.value})}
+        <input
+          type="text"
+          id="address"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border"
         />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+            Ville
+          </label>
+          <input
+            type="text"
+            id="city"
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border"
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+            Code postal
+          </label>
+          <input
+            type="text"
+            id="postalCode"
+            name="postalCode"
+            value={formData.postalCode}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border"
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="country" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+            Pays
+          </label>
+          <input
+            type="text"
+            id="country"
+            name="country"
+            value={formData.country}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border"
+          />
+        </div>
       </div>
       
       <div>
-        <label htmlFor="bankInfo" className="block text-sm font-medium text-gray-700">
-          Informations Bancaires
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+          Notes
         </label>
-        <input 
-          type="text" 
-          id="bankInfo"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-          placeholder="IBAN ou RIB" 
-          value={form.bankInfo || ''} 
-          onChange={(e) => setForm({...form, bankInfo: e.target.value})}
+        <textarea
+          id="notes"
+          name="notes"
+          value={formData.notes}
+          onChange={handleChange}
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-dark-input dark:text-dark-text dark:border-dark-border"
         />
       </div>
       
-      <div>
-        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-          Catégorie
-        </label>
-        <input 
-          type="text" 
-          id="category"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-          placeholder="Type de fournisseur" 
-          value={form.category || ''} 
-          onChange={(e) => setForm({...form, category: e.target.value})}
-        />
-      </div>
-      
-      <div className="flex justify-end space-x-2 pt-4">
-        <button 
-          type="button" 
+      <div className="flex justify-end space-x-3 pt-4">
+        <button
+          type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-dark-card dark:text-dark-text dark:border-dark-border dark:hover:bg-gray-700"
         >
           Annuler
         </button>
-        <button 
+        <button
           type="submit"
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
         >
-          {initialData?.id ? 'Modifier' : 'Ajouter'}
+          {supplier ? 'Mettre à jour' : 'Ajouter'}
         </button>
       </div>
     </form>
   );
 };
-
-export default SupplierForm;

@@ -61,8 +61,8 @@ export const OrderWithInvoices: React.FC<OrderWithInvoicesProps> = ({
     return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200';
   };
   
-  const totalInvoiceAmount = invoices.reduce((sum, invoice) => sum + invoice.amount, 0);
-  const remainingAmount = order.totalTTC - totalInvoiceAmount;
+  const totalInvoiceAmount = invoices.reduce((sum, invoice) => sum + invoice.totalAmount, 0);
+  const remainingAmount = order.totalAmount - totalInvoiceAmount;
   
   return (
     <div className="bg-white dark:bg-dark-card rounded-lg shadow-md overflow-hidden mb-4 border border-gray-200 dark:border-dark-border">
@@ -78,14 +78,14 @@ export const OrderWithInvoices: React.FC<OrderWithInvoicesProps> = ({
           <div>
             <h3 className="font-medium dark:text-dark-text">Commande {order.orderNumber}</h3>
             <p className="text-sm text-gray-500 dark:text-dark-muted">
-              {supplier?.name || 'Fournisseur inconnu'} • {order.date}
+              {supplier?.name || 'Fournisseur inconnu'} • {order.orderDate}
             </p>
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <p className="font-medium dark:text-dark-text">{order.totalTTC.toFixed(2)} €</p>
+            <p className="font-medium dark:text-dark-text">{order.totalAmount.toFixed(2)} €</p>
             <div className="flex items-center justify-end">
               <span className={`px-2 py-0.5 text-xs rounded-full ${getPaymentStatusClass()}`}>
                 {order.paymentStatus}
@@ -109,7 +109,7 @@ export const OrderWithInvoices: React.FC<OrderWithInvoicesProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500 dark:text-dark-muted">Date:</span>
-                  <span className="text-sm font-medium dark:text-dark-text">{order.date}</span>
+                  <span className="text-sm font-medium dark:text-dark-text">{order.orderDate}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500 dark:text-dark-muted">Fournisseur:</span>
@@ -130,16 +130,8 @@ export const OrderWithInvoices: React.FC<OrderWithInvoicesProps> = ({
               <h4 className="text-sm font-medium text-gray-500 dark:text-dark-muted mb-1">Informations financières</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500 dark:text-dark-muted">Total HT:</span>
-                  <span className="text-sm font-medium dark:text-dark-text">{order.totalHT.toFixed(2)} €</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500 dark:text-dark-muted">TVA:</span>
-                  <span className="text-sm font-medium dark:text-dark-text">{order.tva.toFixed(2)} €</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500 dark:text-dark-muted">Total TTC:</span>
-                  <span className="text-sm font-medium dark:text-dark-text">{order.totalTTC.toFixed(2)} €</span>
+                  <span className="text-sm text-gray-500 dark:text-dark-muted">Total:</span>
+                  <span className="text-sm font-medium dark:text-dark-text">{order.totalAmount.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500 dark:text-dark-muted">Échéance:</span>
@@ -201,13 +193,13 @@ export const OrderWithInvoices: React.FC<OrderWithInvoicesProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium dark:text-dark-text">{invoice.amount.toFixed(2)} €</p>
+                      <p className="text-sm font-medium dark:text-dark-text">{invoice.totalAmount.toFixed(2)} €</p>
                       <p className={`text-xs ${
-                        invoice.paymentStatus === 'payé' 
+                        invoice.status === 'PAID' 
                           ? 'text-green-600 dark:text-green-400' 
                           : 'text-red-600 dark:text-red-400'
                       }`}>
-                        {invoice.paymentStatus}
+                        {invoice.status === 'PAID' ? 'Payé' : invoice.status === 'PENDING' ? 'En attente' : 'En retard'}
                       </p>
                     </div>
                   </div>
